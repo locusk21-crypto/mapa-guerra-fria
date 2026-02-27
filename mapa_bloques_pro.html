@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Mapa Interactivo Guerra Fría PRO</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<style>
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0f172a;color:white}
+#map{height:100vh;width:100vw}
+.panel{
+position:absolute;
+top:15px;
+left:15px;
+background:#111827;
+padding:15px;
+max-width:300px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,.6);
+z-index:1000;
+}
+.title{font-size:18px;font-weight:bold;margin-bottom:8px;color:#60a5fa}
+.legend{
+position:absolute;
+bottom:15px;
+right:15px;
+background:#111827;
+padding:12px 14px;
+border-radius:14px;
+box-shadow:0 10px 25px rgba(0,0,0,.6);
+font-size:14px;
+}
+.legend span{display:block;margin:4px 0}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="panel" id="info">
+<div class="title">Mapa Guerra Fría</div>
+Haz clic en un país para ver su información histórica.
+</div>
+
+<div class="legend">
+<span><i class="dot" style="background:blue"></i>Capitalista</span>
+<span><i class="dot" style="background:red"></i>Socialista</span>
+<span><i class="dot" style="background:green"></i>No Alineado</span>
+</div>
+
+<script>
+var map=L.map('map',{zoomControl:false}).setView([20,0],2);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:5}).addTo(map);
+L.control.zoom({position:'bottomleft'}).addTo(map);
+
+var groups={
+capitalista:{color:"blue",markers:[]},
+socialista:{color:"red",markers:[]},
+neutral:{color:"green",markers:[]}
+};
+
+function showInfo(country,group,desc){
+Object.values(groups).forEach(g=>g.markers.forEach(m=>m.setStyle({fillColor:"gray",radius:7})));
+country.marker.setStyle({fillColor:groups[group].color,radius:10});
+document.getElementById("info").innerHTML=`<div class='title'>${country.name}</div>
+<b>Bloque:</b> ${group.toUpperCase()}<br><br>${desc}`;
+}
+
+function addCountry(name,coords,group,desc){
+var marker=L.circleMarker(coords,{radius:7,fillColor:"gray",color:"#000",weight:1,fillOpacity:.95}).addTo(map);
+var country={name:name,marker:marker};
+marker.on("click",()=>showInfo(country,group,desc));
+groups[group].markers.push(marker);
+}
+
+// CAPITALISTAS
+[
+["Estados Unidos",[38,-97],"Lideró el bloque occidental defendiendo el capitalismo y conteniendo la expansión comunista mediante alianzas militares y ayuda económica."],
+["Canadá",[56,-106],"Aliado cercano de EE.UU. miembro de la OTAN y participante en defensa continental."],
+["Reino Unido",[55,-3],"Potencia occidental clave alineada política y militarmente con EE.UU."],
+["Francia",[46,2],"Aliado occidental aunque con política exterior a veces independiente dentro del bloque."],
+["Alemania Occidental",[51,10],"Estado creado tras la Segunda Guerra Mundial bajo influencia occidental como barrera frente al comunismo."],
+["Italia",[42,12],"Integrante de la OTAN y economía de mercado apoyada por EE.UU."],
+["Japón",[36,138],"Reconstruido por EE.UU. tras la guerra y aliado estratégico en Asia."],
+["Corea del Sur",[36,128],"Respaldada por EE.UU. tras la Guerra de Corea para frenar al norte comunista."],
+["Australia",[-25,133],"Aliado militar occidental participante en pactos de seguridad."],
+["España",[40,-4],"Anticomunista durante el franquismo y posteriormente integrada al bloque occidental."]
+].forEach(c=>addCountry(c[0],c[1],"capitalista",c[2]));
+
+// SOCIALISTAS
+[
+["URSS",[60,90],"Líder del bloque socialista y principal potencia rival de EE.UU. durante la Guerra Fría."],
+["Polonia",[52,19],"Estado satélite soviético integrado al Pacto de Varsovia."],
+["Checoslovaquia",[49,15],"Gobierno comunista bajo influencia directa de Moscú."],
+["Hungría",[47,19],"Integrante del bloque oriental tras la ocupación soviética."],
+["Rumania",[45,25],"País socialista aliado estratégicamente con la URSS."],
+["Bulgaria",[43,25],"Uno de los aliados más fieles de Moscú en Europa del Este."],
+["Cuba",[21,-79],"Aliado socialista en América tras la revolución de 1959."],
+["Vietnam del Norte",[21,105],"Gobierno comunista apoyado por la URSS y China."],
+["Corea del Norte",[40,127],"Estado comunista respaldado por la URSS y China."],
+["Mongolia",[46,103],"República socialista estrechamente alineada con Moscú."]
+].forEach(c=>addCountry(c[0],c[1],"socialista",c[2]));
+
+// NO ALINEADOS
+[
+["India",[21,78],"Promovió el Movimiento de Países No Alineados buscando independencia política de ambas superpotencias."],
+["Yugoslavia",[44,20],"Estado socialista independiente que rompió relaciones con la URSS y lideró el no alineamiento."],
+["Egipto",[26,30],"Mantuvo política exterior flexible recibiendo ayuda de ambos bloques."],
+["Indonesia",[-5,120],"Buscó autonomía internacional sin someterse a ninguna superpotencia."],
+["Suiza",[47,8],"Neutralidad histórica y política exterior independiente."],
+["Suecia",[63,16],"Neutral pero con economía capitalista y diplomacia independiente."],
+["México",[23,-102],"Mantuvo política exterior neutral basada en no intervención y autodeterminación."]
+].forEach(c=>addCountry(c[0],c[1],"neutral",c[2]));
+</script>
+</body>
+</html>
